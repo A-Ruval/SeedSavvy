@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seed Planting Guide</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #b5e7a0;
+      /* Light green background */
+      background-image: url('https://images.unsplash.com/photo-1416169607655-0c2b3ce2e1cc?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+      /* Nature background */
+      background-size: cover;
+      /* Cover the entire viewport */
+      background-position: center;
+      /* Center the background image */
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.9);
+      /* Semi-transparent white container background */
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #main-content {
+      flex-grow: 1;
+    }
+
+    #sidebar {
+      width: 200px;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      margin-left: 20px;
+    }
+
+    h2 {
+      color: #4CAF50;
+      /* Green header color */
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #4CAF50;
+      /* Green button color */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: block;
+      margin: 0 auto;
+    }
+
+    button:hover {
+      background-color: #45a049;
+      /* Darker green on hover */
+    }
+
+    #output {
+      margin-top: 20px;
+    }
+
+    p {
+      margin: 5px 0;
+    }
+
+    ul {
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      list-style-type: none;
+      margin-bottom: 10px;
+    }
+
+    .watermark {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: #fff; /* Change to white */
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div id="main-content">
+      <h2>Seed Planting Guide</h2>
+      <label for="seedType">Enter the type of seed:</label>
+      <input type="text" id="seedType" placeholder="e.g., Tomato, Carrot, Rose...">
+      <button onclick="getPlantingInfo()">Get Planting Info</button>
+      <div id="output"></div>
+    </div>
+    <div id="sidebar">
+      <h3>Popular Seed Types</h3>
+      <ul id="seedList"></ul>
+    </div>
+  </div>
+
+  <div class="watermark">Made for HackMerced IX</div>
+
+  <script>
+    function getPlantingInfo() {
+      var seedTypeInput = document.getElementById("seedType").value.trim().toLowerCase(); // Convert to lowercase
+      var outputDiv = document.getElementById("output");
+
+      fetch('seeds.json')
+        .then(response => response.json())
+        .then(data => {
+          var seedType = Object.keys(data).find(key => key.toLowerCase() === seedTypeInput); // Find matching seed type, case-insensitive
+          if (seedType) {
+            var seedInfo = data[seedType];
+            outputDiv.innerHTML = "<h3>Ideal Growing Conditions for " + seedType + "</h3>" +
+              "<p><strong>Soil Type:</strong> " + seedInfo.soilType + "</p>" +
+              "<p><strong>Space Needed:</strong> " + seedInfo.spaceNeeded + "</p>" +
+              "<p><strong>Sunlight Needed:</strong> " + seedInfo.sunlightNeeded + "</p>" +
+              "<p><strong>Water Needed:</strong> " + seedInfo.waterNeeded + "</p>" +
+              "<p><strong>Temperature Needed:</strong> " + seedInfo.temperatureNeeded + "</p>" +
+              "<p><strong>Growth Time:</strong> " + seedInfo.growthTime + "</p>";
+          } else {
+            outputDiv.innerHTML = "<p>No information available for the entered seed type.</p>";
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          outputDiv.innerHTML = "<p>Error fetching data.</p>";
+        });
+    }
+
+    // Function to display random popular seed types
+    function displayPopularSeedTypes(seedTypes) {
+      var seedList = document.getElementById("seedList");
+      seedList.innerHTML = ""; // Clear existing list
+
+      // Shuffle seed types array
+      seedTypes = shuffleArray(seedTypes);
+
+      // Display a certain number of seed types (e.g., 5)
+      var numSeedTypes = 5;
+      for (var i = 0; i < numSeedTypes; i++) {
+        var li = document.createElement("li");
+        li.textContent = seedTypes[i];
+        seedList.appendChild(li);
+      }
+    }
+
+    // Function to shuffle array
+    function shuffleArray(array) {
+      for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Fetch seed types from JSON file and display random popular seed types
+    fetch('seeds.json')
+      .then(response => response.json())
+      .then(data => {
+        var seedTypes = Object.keys(data);
+        displayPopularSeedTypes(seedTypes);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  </script>
+
+</body>
+
+</html>
